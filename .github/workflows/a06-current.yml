@@ -27,10 +27,11 @@ jobs:
           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/kernel*.patch patch/kernel/rockchip64-current/
           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/uboot*.patch patch/u-boot/u-boot-rockchip64/
           #Then exec ./compile.sh under armbian build
+          #Can't build hirsute in GitHub actions with default runners; the ubuntu-latest == ubuntu-20.04
           ./compile.sh \
             BOARD=rockpro64 \
             BRANCH=current \
-            RELEASE=focal \ #Can't build hirsute in GitHub actions with default runners; the ubuntu-latest == ubuntu-20.04
+            RELEASE=focal \
             BUILD_MINIMAL=no \
             BUILD_DESKTOP=yes \
             DESKTOP_ENVIRONMENT=xfce \

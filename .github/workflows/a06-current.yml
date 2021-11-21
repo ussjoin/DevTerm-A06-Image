@@ -16,6 +16,9 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
@@ -26,8 +29,9 @@ jobs:
           git apply ~/DevTerm/Code/patch/armbian_build_a06/patch/armbian.patch
           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/kernel*.patch patch/kernel/rockchip64-current/
           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/uboot*.patch patch/u-boot/u-boot-rockchip64/
-          #Then exec ./compile.sh under armbian build
-          #Can't build hirsute in GitHub actions with default runners; the ubuntu-latest == ubuntu-20.04
+          # Then exec ./compile.sh under armbian build
+          # Can't build hirsute in GitHub actions with default runners; the ubuntu-latest == ubuntu-20.04
+          # Hence using Ubuntu LTS
           ./compile.sh \
             BOARD=rockpro64 \
             BRANCH=current \
@@ -38,4 +42,68 @@ jobs:
             DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base \
             DESKTOP_APPGROUPS_SELECTED='' \
             KERNEL_ONLY=no \
-            KERNEL_CONFIGURE=no 
+            KERNEL_CONFIGURE=no
+          # Now set up the chroot
+          sudo losetup -P /dev/loop0  ${{ steps.date.outputs.date }}-nightly-Armbian-trunk_Clockworkpi-a06_focal_current_xfce_desktop.img
+          sudo mount /dev/loop0p1 /mnt/p1
+          cd /mnt/p1
+          sudo mount --bind /dev dev/
+          sudo mount --bind /sys sys/
+          sudo mount --bind /proc proc/
+          sudo mount --bind /dev/pts dev/pts
+          sudo mv etc/ld.so.preload etc/ld_so_preload
+          # Enter the Matrix
+          sudo chroot .
+          sudo apt install -y wget
+          wget -O - https://raw.githubusercontent.com/clockworkpi/apt/main/debian/KEY.gpg | sudo apt-key add -
+          echo "deb https://raw.githubusercontent.com/clockworkpi/apt/main/debian/ stable main" | sudo tee -a /etc/apt/sources.list.d/clockworkpi.list
+          sudo apt update
+          sudo apt remove -y celluloid mpv linux-image*
+          sudo apt install -y devterm-kernel-current-cpi-a06 devterm-fan-daemon-cpi-a06 devterm-thermal-printer devterm-thermal-printer-cups devterm-wiringpi-cpi  devterm-first-start-a06 arandr chromium-browser vlc cpupower-gui xfce4-power-manager
+          # ArmbianEnv Config
+          echo "bootlogo=false" | sudo tee -a /boot/armbianEnv.txt
+          echo "extraargs=fbcon=rotate:1" | sudo tee -a /boot/armbianEnv.txt
+          # Automatic Login
+          sudo bash -c 'cat <<EOF > /etc/lightdm/lightdm.conf.d/12-autologin.conf
+          [Seat:*]
+          autologin-user=cpi
+          autologin-user-timeout=0
+          EOF'
+          # Configure LightDM
+          sudo bash -c 'cat << EOF > /etc/lightdm/lightdm.conf.d/13-rotate-dsi.conf
+          [Seat:*]
+          greeter-setup-script=/etc/lightdm/setup.sh
+          EOF'
+          sudo bash -c 'cat <<EOF >/etc/lightdm/setup.sh
+          #!/bin/bash
+          xrandr --output DSI-1 --rotate right
+          exit 0
+          EOF'
+          sudo chmod +x /etc/lightdm/setup.sh
+          # Configure Xrandr
+          sudo bash -c 'cat << EOF > /etc/X11/Xsession.d/100custom_xrandr
+          xrandr --output DSI-1 --rotate right
+          EOF'
+          # Configure Apport
+          sudo bash -c 'cat << EOF > /etc/default/apport
+          enabled=0
+          EOF'
+          # Wave goodbye to the Matrix
+          exit
+          sudo mv etc/ld_so_preload etc/ld.so.preload
+          sudo umount /mnt/p1/dev/pts
+          sudo umount /mnt/p1/dev
+          sudo umount /mnt/p1/proc
+          sudo umount /mnt/p1/sys
+          ##clear bash 
+          sudo rm -rf root/.bash_history
+          sudo rm usr/bin/qemu-arm-static
+          cd -
+          sudo umount /mnt/p1
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.date.outputs.date }}-nightly-Armbian-trunk_Clockworkpi-a06_focal_current_xfce_desktop.img
+          path: ${{ steps.date.outputs.date }}-nightly-Armbian-trunk_Clockworkpi-a06_focal_current_xfce_desktop.img
+          retention-days: 5
+  

@@ -27,4 +27,14 @@ jobs:
           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/kernel*.patch patch/kernel/rockchip64-current/
           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/uboot*.patch patch/u-boot/u-boot-rockchip64/
           #Then exec ./compile.sh under armbian build
-          cd ~/build && ./compile.sh 
+          ./compile.sh \
+            BOARD=rockpro64 \
+            BRANCH=current \
+            RELEASE=hirsute \
+            BUILD_MINIMAL=no \
+            BUILD_DESKTOP=yes \
+            DESKTOP_ENVIRONMENT=xfce \
+            DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base \
+            DESKTOP_APPGROUPS_SELECTED='' \
+            KERNEL_ONLY=no \
+            KERNEL_CONFIGURE=no 

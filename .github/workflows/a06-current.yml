@@ -20,34 +20,35 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       # Primary Armbian build
-#       - name: Build Armbian
-#         run: |
-#           cd ~
-#           git clone https://github.com/armbian/build.git
-#           git clone https://github.com/clockworkpi/DevTerm.git
-#           cd build
-#           git apply ~/DevTerm/Code/patch/armbian_build_a06/patch/armbian.patch
-#           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/kernel*.patch patch/kernel/rockchip64-current/
-#           cp ~/DevTerm/Code/patch/armbian_build_a06/patch/uboot*.patch patch/u-boot/u-boot-rockchip64/
-#           # Then exec ./compile.sh under armbian build
-#           # Can't build hirsute in GitHub actions with default runners; the ubuntu-latest == ubuntu-20.04
-#           # Hence using Ubuntu LTS
-#           ./compile.sh \
-#             BOARD=rockpro64 \
-#             BRANCH=current \
-#             RELEASE=focal \
-#             BUILD_MINIMAL=no \
-#             BUILD_DESKTOP=yes \
-#             DESKTOP_ENVIRONMENT=xfce \
-#             DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base \
-#             DESKTOP_APPGROUPS_SELECTED='' \
-#             KERNEL_ONLY=no \
-#             KERNEL_CONFIGURE=no
+      - name: Build Armbian
+        run: |
+          cd ~
+          git clone https://github.com/armbian/build.git
+          git clone https://github.com/clockworkpi/DevTerm.git
+          cd build
+          git apply ~/DevTerm/Code/patch/armbian_build_a06/patch/armbian.patch
+          cp ~/DevTerm/Code/patch/armbian_build_a06/patch/kernel*.patch patch/kernel/rockchip64-current/
+          cp ~/DevTerm/Code/patch/armbian_build_a06/patch/uboot*.patch patch/u-boot/u-boot-rockchip64/
+          # Then exec ./compile.sh under armbian build
+          # Can't build hirsute in GitHub actions with default runners; the ubuntu-latest == ubuntu-20.04
+          # Hence using Ubuntu LTS
+          ./compile.sh \
+            BOARD=rockpro64 \
+            BRANCH=current \
+            RELEASE=focal \
+            BUILD_MINIMAL=no \
+            BUILD_DESKTOP=yes \
+            DESKTOP_ENVIRONMENT=xfce \
+            DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base \
+            DESKTOP_APPGROUPS_SELECTED='' \
+            KERNEL_ONLY=no \
+            KERNEL_CONFIGURE=no
       - name: WTH
         run: |
           # Someone set up us the bomb
           ls ~
           ls /dev/loop*
+          ls ~/build
 #       - name: Do DevTerm-specific configuration
 #         run: |
 #           # Now set up the chroot

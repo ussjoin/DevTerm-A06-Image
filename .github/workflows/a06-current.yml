@@ -46,6 +46,7 @@ jobs:
       - name: Do DevTerm-specific configuration
         run: |
           # Now set up the chroot
+          ls /dev/loop*
           sudo losetup -P /dev/loop0  ${{ steps.date.outputs.date }}-nightly-Armbian-trunk_Clockworkpi-a06_focal_current_xfce_desktop.img
           sudo mount /dev/loop0p1 /mnt/p1
           cd /mnt/p1

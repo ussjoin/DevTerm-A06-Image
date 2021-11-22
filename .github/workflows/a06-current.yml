@@ -45,7 +45,8 @@ jobs:
 #             KERNEL_CONFIGURE=no
       - name: WTH
         run: |
-          ls .
+          # Someone set up us the bomb
+          ls ~
           ls /dev/loop*
 #       - name: Do DevTerm-specific configuration
 #         run: |

@@ -20,7 +20,7 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Build Armbian
         run: |
           cd ~
           git clone https://github.com/armbian/build.git
@@ -43,6 +43,8 @@ jobs:
             DESKTOP_APPGROUPS_SELECTED='' \
             KERNEL_ONLY=no \
             KERNEL_CONFIGURE=no
+      - name: Do DevTerm-specific configuration
+        run: |
           # Now set up the chroot
           sudo losetup -P /dev/loop0  ~/${{ steps.date.outputs.date }}-nightly-Armbian-trunk_Clockworkpi-a06_focal_current_xfce_desktop.img
           sudo mount /dev/loop0p1 /mnt/p1
@@ -100,7 +102,7 @@ jobs:
           sudo rm usr/bin/qemu-arm-static
           cd -
           sudo umount /mnt/p1
-      - name: 'Upload Artifact'
+      - name: Retain the built image
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.date.outputs.date }}-nightly-Armbian-trunk_Clockworkpi-a06_focal_current_xfce_desktop.img

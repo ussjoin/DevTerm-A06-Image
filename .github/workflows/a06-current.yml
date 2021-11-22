@@ -43,10 +43,10 @@ jobs:
 #             DESKTOP_APPGROUPS_SELECTED='' \
 #             KERNEL_ONLY=no \
 #             KERNEL_CONFIGURE=no
-        - name: WTH
-          run: |
-            ls .
-            ls /dev/loop*
+      - name: WTH
+        run: |
+          ls .
+          ls /dev/loop*
 #       - name: Do DevTerm-specific configuration
 #         run: |
 #           # Now set up the chroot
